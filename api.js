@@ -34,31 +34,24 @@ app.listen(port, () => {
 
 
 // 아이디로 로그인후 쿠키 저장
-app.get('/get_auth_info', async (req,res) => {
+app.post('/get_auth_info', async (req,res) => {
     
+    // console.log('시작',req.body)
+    
+    const authinfo = req.body
+    const linkurl = "http://m.missyusa.com/mainpage/boards/" + authinfo.link
 
-    // javascript:chk_login();
-    // javascript:chk_login_main();
-    // https://missyusa.com//mainpage/account/login.asp
+    console.log('시작',linkurl)
+
+   
     const url = 'http://m.missyusa.com/mainpage/account/login_ok.asp'
-    // http://m.missyusa.com/mainpage/account/login_ok.asp
-    // 'https://missyusa.com//mainpage/account/login.asp'
-
-    // const url2 = 'http://m.missyusa.com/mainpage/boards/board_read.asp?id=talk13&page=1&category=0&key_field=&mypost=0&key_word=&idx=4287904&ref=3643012&step=1&level=0'
-
-    const data = { 
-         userid : 'jhkim73',
-         passwd : 'think4u'
-        }
-
-
-    // const result = await request.post (url, data)  
+ 
     const jar = new CookieJar();
     const client = wrapper(axios.create({ jar }));
 
     const params = new URLSearchParams();
-    params.append('userid', 'jhkim73');
-    params.append('passwd', 'think4u2');
+    params.append('userid', authinfo.userid);
+    params.append('passwd', authinfo.passwd);
     
     client.post(url, params, {
     headers: {
@@ -66,15 +59,29 @@ app.get('/get_auth_info', async (req,res) => {
     }
     })
         .then(function (response) {
-            console.log(response.headers['set-cookie'][1]);
+            console.log(response.headers);
             console.log("*********************************")
 
 
-            client.get ('http://m.missyusa.com/mainpage/boards/board_read.asp?id=talk13&page=1&category=0&key_field=&mypost=0&key_word=&idx=4288122&ref=3643230&step=1&level=0',{responseType: 'arraybuffer'})
-                .then((res) => {
+            client.get (linkurl , {responseType: 'arraybuffer'})
+                .then((respo) => {
 
-            const content = iconv.decode(res.data, "EUC-KR").toString()
-            console.log(content)
+                    const content = iconv.decode(respo.data, "EUC-KR").toString()
+
+                    const $ = cheerio.load(content)
+
+                    titles = [] 
+                
+                    // 자세한 글 가져오기.
+                    const detailContent = $.html('.detail_content')
+                
+                    // const del = $.html('.cont_top')
+                 
+                    // const final = detailContent.replace(del,"")
+                    
+                
+                    // console.log("?????????",detailContent)
+                    res.send(detailContent)
 
                 })
                 
