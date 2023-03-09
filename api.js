@@ -41,7 +41,7 @@ app.post('/get_auth_info', async (req,res) => {
     const authinfo = req.body
     const linkurl = "http://m.missyusa.com/mainpage/boards/" + authinfo.link
 
-    console.log('시작',linkurl)
+    // console.log('시작',linkurl)
 
    
     const url = 'http://m.missyusa.com/mainpage/account/login_ok.asp'
@@ -59,31 +59,28 @@ app.post('/get_auth_info', async (req,res) => {
     }
     })
         .then(function (response) {
-            console.log(response.headers);
-            console.log("*********************************")
+            // console.log(response.headers);
+            // console.log("*********************************")
+
+            res.send(response.headers)
 
 
-            client.get (linkurl , {responseType: 'arraybuffer'})
-                .then((respo) => {
+            // client.get (linkurl , {responseType: 'arraybuffer'})
+            //     .then((respo) => {
 
-                    const content = iconv.decode(respo.data, "EUC-KR").toString()
+            //         const content = iconv.decode(respo.data, "EUC-KR").toString()
 
-                    const $ = cheerio.load(content)
+            //         const $ = cheerio.load(content)
 
-                    titles = [] 
+            //         titles = [] 
                 
-                    // 자세한 글 가져오기.
-                    const detailContent = $.html('.detail_content')
+            //         // 자세한 글 가져오기.
+            //         const detailContent = $.html('.detail_content')
                 
-                    // const del = $.html('.cont_top')
                  
-                    // const final = detailContent.replace(del,"")
-                    
-                
-                    // console.log("?????????",detailContent)
-                    res.send(detailContent)
+            //         res.send(detailContent)
 
-                })
+            //     })
                 
 
             })
@@ -94,6 +91,54 @@ app.post('/get_auth_info', async (req,res) => {
 
     // console.log(result.cookies)
     
+
+})
+
+// 제목 클릭했을때 자세한 내용 보는 것  --> test with auth
+app.post('/test3', async (req, res) => {
+   
+    
+    
+    const info = req.body;
+   
+    const url="http://m.missyusa.com/mainpage/boards/" + info.link
+    // console.log("**************************")
+    // console.log('3 시작',info.auth['set-cookie'][0])   // 만료시간
+    // console.log('3 시작',info.auth['set-cookie'][1])    //진짜 쿠키
+
+
+
+
+    const response = await axios.request({
+        url: url,
+        method: 'GET',
+        headers: {
+            cookie: info.auth['set-cookie'],
+        },
+        responseType: 'arraybuffer',
+        // headers: info.auth
+        // responseEncoding: 'binary'
+      });
+
+    const content = iconv.decode(response.data, "EUC-KR").toString()
+
+    
+
+    const $ = cheerio.load(content)
+
+    titles = [] 
+
+    // 자세한 글 가져오기.
+    const detailContent = $.html('.detail_content')
+
+    // const del = $.html('.cont_top')
+ 
+    // const final = detailContent.replace(del,"")
+    
+
+    // console.log("**************************")
+
+    res.send(detailContent)
 
 })
 
