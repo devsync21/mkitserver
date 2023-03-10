@@ -209,6 +209,9 @@ app.post('/get_board_detail', async (req, res) => {
     const response = await axios.request({
         url: url,
         method: 'GET',
+        headers: {
+            cookie: info.auth['set-cookie'],
+        },
         responseType: 'arraybuffer',
         // responseEncoding: 'binary'
       });
