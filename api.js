@@ -203,6 +203,7 @@ app.post('/get_board_detail', async (req, res) => {
     
     const info = req.body;
    
+    console.log (info)
     const url="http://m.missyusa.com/mainpage/boards/" + info.link
 
    
@@ -210,11 +211,13 @@ app.post('/get_board_detail', async (req, res) => {
         url: url,
         method: 'GET',
         headers: {
-            cookie: info.auth['set-cookie'],
+            cookie: info.auth.cookie['set-cookie'],
         },
         responseType: 'arraybuffer',
         // responseEncoding: 'binary'
       });
+
+      console.log( info.auth.cookie['set-cookie'])
 
     const content = iconv.decode(response.data, "EUC-KR").toString()
 
