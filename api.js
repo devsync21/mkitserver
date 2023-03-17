@@ -197,6 +197,65 @@ app.get('/get_board_title_lists/:section/:sectionid/:page', (req, res) => {
 
 })
 
+// 각 게시판 검색 결과 보는 것
+app.post('/get_board_search_title_lists/:section/:sectionid/:page', (req, res) => {
+    
+    const info = req.params;
+    const info2 = req.body
+
+    console.log(info)
+    console.log(info2)
+
+    // http://m.missyusa.com/mainpage/boards/board_list.asp?id=talk1&category=0&mypost=0&key_field=title&key_word=sdfsf
+  
+    const url = 'http://m.missyusa.com/mainpage/boards/board_list.asp?id='
+                + info.sectionid  + '&category=0&mypost=0&key_field=title&key_word=' + info2.text + '&page=' + info.page;
+
+      axios.get(url,{responseType: "arraybuffer"})
+        .then((response)=>{
+            const contnet = iconv.decode(response.data, "EUC-KR").toString()
+            const $ = cheerio.load(contnet)
+
+        titles = [] 
+       
+        const element = $('ul.pr_list > li')
+   
+   
+        element.each((idx,node) => {
+
+            const title = $(node).find('span[data-icon="pr_title"]').text()     // 제목
+            let youtubeicon = $(node).find('span[data-icon="pr_title"]').find('img').attr('src') // 유튜브 아이콘 표시
+            const link = $(node).find('a').attr('href')                         // 링크
+            const repl = $(node).find('span[data-icon="pr_repl"]').text()       // 댓글수
+            const date = $(node).find('span[data-icon="pr_date"]').text()       // 날짜
+            const read = $(node).find('span[data-icon="pr_read"]').text()       // 조회수 
+            
+
+            if (youtubeicon===undefined){
+                youtubeicon = ""
+            }
+            
+            const titletemp = {
+                  title,
+                  youtubeicon,
+                  link,
+                  repl,
+                  date,
+                  read
+                  
+                
+            }
+            
+            titles.push(titletemp)
+            
+        })
+      
+        res.send(titles)
+    
+        })
+
+})
+
 // 제목 클릭했을때 자세한 내용 보는 것
 app.post('/get_board_detail', async (req, res) => {
     
