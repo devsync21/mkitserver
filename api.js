@@ -36,14 +36,11 @@ app.listen(port, () => {
 // 아이디로 로그인후 쿠키 저장
 app.post('/get_auth_info', async (req,res) => {
     
-    // console.log('시작',req.body)
+  
     
     const authinfo = req.body
     const linkurl = "http://m.missyusa.com/mainpage/boards/" + authinfo.link
 
-    // console.log('시작',linkurl)
-
-   
     const url = 'http://m.missyusa.com/mainpage/account/login_ok.asp'
  
     const jar = new CookieJar();
@@ -59,29 +56,9 @@ app.post('/get_auth_info', async (req,res) => {
     }
     })
         .then(function (response) {
-            // console.log(response.headers);
-            // console.log("*********************************")
+
 
             res.send(response.headers)
-
-
-            // client.get (linkurl , {responseType: 'arraybuffer'})
-            //     .then((respo) => {
-
-            //         const content = iconv.decode(respo.data, "EUC-KR").toString()
-
-            //         const $ = cheerio.load(content)
-
-            //         titles = [] 
-                
-            //         // 자세한 글 가져오기.
-            //         const detailContent = $.html('.detail_content')
-                
-                 
-            //         res.send(detailContent)
-
-            //     })
-                
 
             })
         .catch(function (error) {
@@ -89,59 +66,9 @@ app.post('/get_auth_info', async (req,res) => {
             });    
 
 
-    // console.log(result.cookies)
     
 
 })
-
-// 제목 클릭했을때 자세한 내용 보는 것  --> test with auth
-app.post('/test3', async (req, res) => {
-   
-    
-    
-    const info = req.body;
-   
-    const url="http://m.missyusa.com/mainpage/boards/" + info.link
-    // console.log("**************************")
-    // console.log('3 시작',info.auth['set-cookie'][0])   // 만료시간
-    // console.log('3 시작',info.auth['set-cookie'][1])    //진짜 쿠키
-
-
-
-
-    const response = await axios.request({
-        url: url,
-        method: 'GET',
-        headers: {
-            cookie: info.auth['set-cookie'],
-        },
-        responseType: 'arraybuffer',
-        // headers: info.auth
-        // responseEncoding: 'binary'
-      });
-
-    const content = iconv.decode(response.data, "EUC-KR").toString()
-
-    
-
-    const $ = cheerio.load(content)
-
-    titles = [] 
-
-    // 자세한 글 가져오기.
-    const detailContent = $.html('.detail_content')
-
-    // const del = $.html('.cont_top')
- 
-    // const final = detailContent.replace(del,"")
-    
-
-    // console.log("**************************")
-
-    res.send(detailContent)
-
-})
-
 
 
 // 각 게시판 제목 보는 것
@@ -161,7 +88,6 @@ app.get('/get_board_title_lists/:section/:sectionid/:page', (req, res) => {
        
         const element = $('ul.pr_list > li')
    
-        // console.log(url)
         element.each((idx,node) => {
 
             const title = $(node).find('span[data-icon="pr_title"]').text()     // 제목
@@ -203,13 +129,15 @@ app.post('/get_board_search_title_lists/:section/:sectionid/:page', (req, res) =
     const info = req.params;
     const info2 = req.body
 
-    console.log(info)
-    console.log(info2)
+   
+    // //한글을 euc-kr과 url endoing 하는 함수
+    // const buffer = iconv.encode(info2.text, 'EUC-KR');
+    // const textEncoded = escape(buffer.toString('binary'));
 
-    // http://m.missyusa.com/mainpage/boards/board_list.asp?id=talk1&category=0&mypost=0&key_field=title&key_word=sdfsf
-  
+
     const url = 'http://m.missyusa.com/mainpage/boards/board_list.asp?id='
                 + info.sectionid  + '&category=0&mypost=0&key_field=title&key_word=' + info2.text + '&page=' + info.page;
+
 
       axios.get(url,{responseType: "arraybuffer"})
         .then((response)=>{
@@ -217,15 +145,20 @@ app.post('/get_board_search_title_lists/:section/:sectionid/:page', (req, res) =
             const $ = cheerio.load(contnet)
 
         titles = [] 
+
        
         const element = $('ul.pr_list > li')
-   
-   
+      
         element.each((idx,node) => {
 
             const title = $(node).find('span[data-icon="pr_title"]').text()     // 제목
             let youtubeicon = $(node).find('span[data-icon="pr_title"]').find('img').attr('src') // 유튜브 아이콘 표시
-            const link = $(node).find('a').attr('href')                         // 링크
+
+
+
+            const link1= $(node).find('a').attr('href')     
+            const link = link1.replace(info2.originalText, info2.text)                    // 링크
+           
             const repl = $(node).find('span[data-icon="pr_repl"]').text()       // 댓글수
             const date = $(node).find('span[data-icon="pr_date"]').text()       // 날짜
             const read = $(node).find('span[data-icon="pr_read"]').text()       // 조회수 
@@ -234,6 +167,7 @@ app.post('/get_board_search_title_lists/:section/:sectionid/:page', (req, res) =
             if (youtubeicon===undefined){
                 youtubeicon = ""
             }
+
             
             const titletemp = {
                   title,
@@ -251,6 +185,7 @@ app.post('/get_board_search_title_lists/:section/:sectionid/:page', (req, res) =
         })
       
         res.send(titles)
+   
     
         })
 
@@ -261,8 +196,7 @@ app.post('/get_board_detail', async (req, res) => {
     
     
     const info = req.body;
-   
-    console.log (info)
+
     const url="http://m.missyusa.com/mainpage/boards/" + info.link
 
    
@@ -276,7 +210,7 @@ app.post('/get_board_detail', async (req, res) => {
         // responseEncoding: 'binary'
       });
 
-      console.log( info.auth.cookie['set-cookie'])
+    //   console.log( info.auth.cookie['set-cookie'])
 
     const content = iconv.decode(response.data, "EUC-KR").toString()
 
@@ -303,9 +237,6 @@ app.post('/get_board_detail', async (req, res) => {
 app.post('/get_board_detail_replies', async (req,res) => {
     const url = req.body.link;
 
-    // console.log(url)
-    // console.log("http://m.missyusa.com/mainpage/boards/board_reply_list.asp?id=talk1&idx=6567791&ref=3404319&step=1")
-   
     const response = await axios.request({
         url: url,
         method: 'GET',
