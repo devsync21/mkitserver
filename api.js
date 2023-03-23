@@ -256,7 +256,7 @@ app.post('/get_board_detail_replies', async (req,res) => {
   
 
     let replies = []
-
+    let id=0  
 
 
     $detail2.each((id,node)=>{
@@ -275,7 +275,7 @@ app.post('/get_board_detail_replies', async (req,res) => {
 
         
         reply = {
-          
+            id,
             rep_no,
             rep_detail,
             rep_rep_icon,
@@ -285,6 +285,7 @@ app.post('/get_board_detail_replies', async (req,res) => {
         }
         
         replies.push(reply)
+        id++
 
     })
 
