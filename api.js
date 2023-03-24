@@ -22,7 +22,7 @@ const CookieJar = require('tough-cookie').CookieJar;
 // const cookieJar = request.jar()
 // request = request.defaults({jar:cookieJar})
 
-//d
+
 
 
 app.use(express.json())
@@ -69,7 +69,6 @@ app.post('/get_auth_info', async (req,res) => {
     
 
 })
-
 
 // 각 게시판 제목 보는 것
 app.get('/get_board_title_lists/:section/:sectionid/:page', (req, res) => {
@@ -233,9 +232,12 @@ app.post('/get_board_detail', async (req, res) => {
 
 })
 
-// 위에 자세한 글 가져오면서 동시에 댓글에 대한 정보도 받는 것
+// 제목 클릭했을때 위에 자세한 글 가져오면서 동시에 댓글에 대한 정보도 받는 것
 app.post('/get_board_detail_replies', async (req,res) => {
+
     const url = req.body.link;
+
+    // console.log('url',url)
 
     const response = await axios.request({
         url: url,
@@ -252,14 +254,11 @@ app.post('/get_board_detail_replies', async (req,res) => {
 
     const $detail2 = $('.rep_list li') 
 
-
-  
-
     let replies = []
-    let id=0  
+ 
 
 
-    $detail2.each((id,node)=>{
+    $detail2.each((id_num,node)=>{
  
         const rep_detail = $(node).find('span.rep_block').find('td:eq(0)').html() //글들
         const rep_rep_icon = $(node).find('span.rep_menu').text().length   //댓글이면 6 대댓글이면 0
@@ -272,20 +271,34 @@ app.post('/get_board_detail_replies', async (req,res) => {
         const ip_address = $(node).find('span.rep_no > font:eq(0)').text()
         const time = $(node).find('span.rep_no > font:eq(1)').text()
 
-
-        
+        const id = $(node).find('form').find('input[name="id"]').val()
+        const idx = $(node).find('form').find('input[name="idx"]').val()
+        const ref = $(node).find('form').find('input[name="ref"]').val()
+        const step = $(node).find('form').find('input[name="step"]').val()
+        const oindex = $(node).find('form').find('input[name="oindex"]').val()
+        const ostep = $(node).find('form').find('input[name="ostep"]').val()
+        const fl = $(node).find('form').find('input[name="fl"]').val()
+    
         reply = {
-            id,
+            id_num,
             rep_no,
             rep_detail,
             rep_rep_icon,
             if_deleted,
             ip_address,
-            time
+            time,
+            id,
+            idx,
+            ref,
+            step,
+            oindex,
+            ostep,
+            fl,
+            url
         }
         
         replies.push(reply)
-        id++
+   
 
     })
 
@@ -293,5 +306,22 @@ app.post('/get_board_detail_replies', async (req,res) => {
     res.send(replies)
 })
 
+// 댓글을 다는 함수
+app.post('/send_reply', async (req,res) => {
+    // const url = req.body.link;
 
+    // const response = await axios.request({
+    //     url: url,
+    //     method: 'GET',
+    //     responseType: 'arraybuffer',
+    //     // responseEncoding: 'binary'
+    //   });
+    console.log("??????",req.body, req.body.txt)
+    
+
+    
+
+
+    res.send('hahha')
+})
 
