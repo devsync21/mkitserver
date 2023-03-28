@@ -198,6 +198,8 @@ app.post('/get_board_detail', async (req, res) => {
 
     const url="http://m.missyusa.com/mainpage/boards/" + info.link
 
+    console.log('cooookie', info.auth.cookie['set-cookie'])
+
    
     const response = await axios.request({
         url: url,

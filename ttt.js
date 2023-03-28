@@ -1,5 +1,7 @@
-
 const axios = require('axios').default
+const cheerio = require('cheerio')
+const iconv = require('iconv-lite')
+
 
 // board_read.asp?id=talk1&page=1&category=0&key_field=&mypost=0&key_word=&idx=6582775&ref=3415437&step=1&level=0 
 // andbc
@@ -7,23 +9,45 @@ const axios = require('axios').default
 
 // board_reply_list.asp?id=talk1&idx=6580211&ref=3413705&step=1
 const test1 = async() => {
-       
-    const url= 'http://m.missyusa.com/mainpage/boards/' + 'board_reply_list.asp?id=talk1&idx=6580199&ref=3413693&step=1'
+    // http://m.missyusa.com/mainpage/boards/board_reply_update_ok.asp
+    const url = 'http://m.missyusa.com/mainpage/boards/board_reply_update_ok.asp'
+    // const url= 'http://m.missyusa.com/mainpage/boards/' + 'board_reply_list.asp?id=talk1&idx=6580170&ref=3413664&step=1/board_reply_update_ok.asp'
+    const Cookie= "__qca=P0-1916131976-1671221339080; _ga=GA1.1.1065826753.1679943432; __gads=ID=b18992079a09125b:T=1679943431:S=ALNI_MZ9-V19F6wR6iCpptl0gO2Zkw5G7g; ASPSESSIONIDCQAASRQR=OECMOEPAPMFLJILAAMENLEEH; __gpi=UID=00000a3244a349bf:T=1679943431:RT=1680010172:S=ALNI_MbOI_ktg-24tDlXYThQDhdWaSCUqw; _ga_GZT8WBC5BM=GS1.1.1680010173.2.1.1680010473.0.0.0; _ga_HYVXTN0P7X=GS1.1.1680010879.2.0.1680010881.0.0.0; MissyUSA=secu=10c458b38111a8ed5023331920f3b393&MemberPermit=3&UserNick=%BD%C2%C8%F1%B8%BE&UserName=jinhee+kim&UserID=jhkim73&Login=loginok"
+
+    // Cookie: __qca=P0-1916131976-1671221339080; _ga=GA1.1.1065826753.1679943432; __gads=ID=b18992079a09125b:T=1679943431:S=ALNI_MZ9-V19F6wR6iCpptl0gO2Zkw5G7g; ASPSESSIONIDCQAASRQR=OECMOEPAPMFLJILAAMENLEEH; __gpi=UID=00000a3244a349bf:T=1679943431:RT=1680010172:S=ALNI_MbOI_ktg-24tDlXYThQDhdWaSCUqw; _ga_GZT8WBC5BM=GS1.1.1680010173.2.1.1680010473.0.0.0; MissyUSA=secu=7c76779814b96d19f224cb3d41c4c2d3&MemberPermit=3&UserNick=%BD%C2%C8%F1%B8%BE&UserName=jinhee+kim&UserID=jhkim73&Login=loginok; _ga_HYVXTN0P7X=GS1.1.1680010879.2.1.1680011916.0.0.0
 
     const data = {
-        txtComment: '정보 감사합니다. ',
+        txtComment: '222',
         id: 'talk1',
-        idx: '6580199',
-        ref: '3413693',
+        idx: '6580170',
+        ref: '3413664',
         step: '1',
-        oindex: '40798642',
-        ostep: '1',
-        fl: '1'
+        // oindex: '40826320',
+        index: '40826320'
+        // ostep: '1',
+        // fl: '1'
     }
 
-    const res = await axios.post(url, data)
+    const res = await axios.request({
+    url: url,
+    method: 'POST',
+    headers: {
+    cookie: Cookie
+    },
+    responseType: 'arraybuffer',
+    // responseEncoding: 'binary'
+    });
+
+    const content = iconv.decode(res.data, "EUC-KR").toString()
+    const $ = cheerio.load(content)
+    const detailContent = $.html()
+
+
+
+
 
     console.log(res)
+    console.log(detailContent)
 
 
    
